@@ -289,13 +289,15 @@ def save_results(
 
 def create_sampling_params(strategy: Dict) -> SamplingParams:
     """Create sampling parameters from strategy configuration."""
-    params = {
-        'temperature': strategy['temperature'],
-        'top_p': strategy['top_p'],
-        'max_tokens': strategy['max_tokens']
-    }
+    params = {}
     
-    # Add optional parameters if they exist
+    # Only add parameters if they exist in the strategy
+    if 'temperature' in strategy:
+        params['temperature'] = strategy['temperature']
+    if 'top_p' in strategy:
+        params['top_p'] = strategy['top_p']
+    if 'max_tokens' in strategy:
+        params['max_tokens'] = strategy['max_tokens']
     if 'min_p' in strategy:
         params['min_p'] = strategy['min_p']
 
