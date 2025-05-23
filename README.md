@@ -16,9 +16,11 @@ pip install -r requirements.txt
 
 2. Configure your sampling strategies in `config.yaml`
 
-3. Run the generation script:
+3. Create your prompts file in JSON format (see `sample_prompts.json` for example)
+
+4. Run the generation script:
 ```bash
-python generate.py --config config.yaml --prompts prompts.txt --output output/
+python generate.py --config config.yaml --prompts prompts.json --output output/
 ```
 
 ## Configuration
@@ -27,12 +29,60 @@ The `config.yaml` file allows you to specify:
 - Model configuration
 - Sampling strategies
 - Output settings
-- Scoring criteria
+- Scoring strategy defaults
+
+## Prompt Format
+
+Prompts should be provided in a JSON file with the following structure:
+```json
+{
+  "prompts": [
+    {
+      "id": "unique_id",
+      "text": "Your prompt text here",
+      "scoring": {
+        "type": "exact_match|numeric|list",
+        "canonical_answer": "expected answer",
+        // Additional scoring parameters based on type
+      }
+    }
+  ]
+}
+```
+
+### Scoring Types
+
+1. `exact_match`:
+   - `canonical_answer`: Expected string answer
+   - `case_sensitive`: Whether to match case (default: false)
+   - `allow_partial`: Whether to allow partial matches (default: false)
+
+2. `numeric`:
+   - `canonical_answer`: Expected number
+   - `tolerance`: Allowed difference from canonical answer
+   - `allow_scientific_notation`: Whether to allow scientific notation
+
+3. `list`:
+   - `canonical_answer`: Expected list of items
+   - `order_matters`: Whether order is important
+   - `allow_partial`: Whether to allow partial matches
+   - `separators`: List of possible separators
 
 ## Output Format
 
 Results are stored in both individual JSON files per prompt and a consolidated file. Each completion includes:
 - Generated text
-- Token-level information including entropy
+- Token-level information
 - Scoring results (format and content correctness)
-- Sampling parameters used 
+- Sampling parameters used
+
+The output structure is:
+```
+output/
+  ├── metadata.json
+  ├── all_results.json
+  └── prompts/
+      ├── prompt_id1.json
+      ├── prompt_id2.json
+      └── ...
+``` 
