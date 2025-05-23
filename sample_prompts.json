@@ -1,0 +1,13 @@
+{
+  "prompts": [
+    {
+      "id": "math_001",
+      "text": "What is 15 multiplied by 7? Please provide your answer within <answer> tags.",
+      "scoring": {
+        "type": "numeric",
+        "canonical_answer": 105,
+        "tolerance": 0
+      }
+    }
+  ]
+} 
