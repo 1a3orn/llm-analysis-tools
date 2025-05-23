@@ -3,7 +3,7 @@ model:
   # Examples:
   # - "Qwen/Qwen-7B"  # HuggingFace model ID
   # - "/path/to/local/model"  # Local model directory
-  name: "../Qwen3-4B"  # Change this to your model path
+  name: "../../Qwen3-4B"  # Change this to your model path
   dtype: "float16"
   trust_remote_code: true
   # Optional: Set to true if you want to force download from HF even if local files exist
