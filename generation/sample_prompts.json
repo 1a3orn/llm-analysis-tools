@@ -6,7 +6,7 @@
       "scoring": {
         "type": "numeric",
         "canonical_answer": 108,
-        "tolerance": 
+        "tolerance": 0
       }
     },
     {
