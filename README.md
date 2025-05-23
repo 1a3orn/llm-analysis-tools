@@ -23,6 +23,16 @@ pip install -r requirements.txt
 python generate.py --config config.yaml --prompts prompts.json --output output/
 ```
 
+### Troubleshooting
+
+If you encounter an error about MKL threading layer incompatibility, the script will automatically handle this by setting the appropriate environment variables. If you need to set these manually, you can do so before running the script:
+
+```bash
+export MKL_THREADING_LAYER=GNU
+export MKL_SERVICE_FORCE_INTEL=1
+python generate.py --config config.yaml --prompts prompts.json --output output/
+```
+
 ## Configuration
 
 The `config.yaml` file allows you to specify:

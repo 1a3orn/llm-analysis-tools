@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
+import os
+# Set environment variables before importing numpy
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
+os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
+
 import argparse
 import json
-import os
 import re
 import time
 from datetime import datetime
