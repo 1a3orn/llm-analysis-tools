@@ -4,6 +4,8 @@ import os
 # Set environment variables before importing numpy
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
 os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
+# Set C compiler environment variable
+os.environ['CC'] = 'gcc'  # or 'clang' depending on your system
 
 import argparse
 import json
