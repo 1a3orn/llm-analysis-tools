@@ -19,6 +19,7 @@ import numpy as np
 import yaml
 from tqdm import tqdm
 from vllm import LLM, SamplingParams
+from transformers import AutoTokenizer
 
 def load_config(config_path: str) -> dict:
     """Load configuration from YAML file."""
@@ -188,6 +189,38 @@ def check_content_correctness(
     except Exception:
         return False
 
+def generate_completions(
+    model: LLM,
+    tokenizer: AutoTokenizer,
+    prompt: str,
+    sampling_params: SamplingParams,
+    num_completions: int
+) -> List[Dict]:
+    """Generate multiple completions for a single prompt using chat format."""
+    try:
+        outputs = []
+        # Format the prompt as a chat message
+        conversation = [{"role": "user", "content": prompt}]
+        
+        # Apply chat template
+        input_ids = tokenizer.apply_chat_template(
+            conversation=conversation,
+            tokenize=True,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        )
+        
+        # Convert to string for VLLM
+        formatted_prompt = tokenizer.decode(input_ids[0])
+        
+        for _ in range(num_completions):
+            output = model.generate(formatted_prompt, sampling_params)
+            outputs.extend(output)
+        return outputs
+    except Exception as e:
+        print(f"Error generating completions: {e}")
+        return []
+
 def process_completion(
     completion: Dict,
     answer_tag: str,
@@ -198,8 +231,7 @@ def process_completion(
         # Extract the actual completion text and token information from the RequestOutput object
         if hasattr(completion, 'outputs') and completion.outputs:
             output = completion.outputs[0]
-            # In chat format, the response is in the message content
-            text = output.message.content if hasattr(output, 'message') else output.text
+            text = output.text
             # Get token IDs if available
             token_ids = output.token_ids if hasattr(output, 'token_ids') else []
             # Create token-level information
@@ -235,26 +267,6 @@ def process_completion(
             'format_correct': False,
             'content_correct': False
         }
-
-def generate_completions(
-    model: LLM,
-    prompt: str,
-    sampling_params: SamplingParams,
-    num_completions: int
-) -> List[Dict]:
-    """Generate multiple completions for a single prompt using chat format."""
-    try:
-        outputs = []
-        # Format the prompt as a chat message
-        messages = [{"role": "user", "content": prompt}]
-        
-        for _ in range(num_completions):
-            output = model.generate(messages, sampling_params)
-            outputs.extend(output)
-        return outputs
-    except Exception as e:
-        print(f"Error generating completions: {e}")
-        return []
 
 def save_results(
     results: Dict,
@@ -325,11 +337,14 @@ def main():
         print("This may take a few minutes for large models...")
         start_time = time.time()
         try:
+            # Initialize tokenizer
+            tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+            
+            # Initialize model
             model = LLM(
                 model=model_path,
                 dtype=config['model']['dtype'],
-                trust_remote_code=config['model']['trust_remote_code'],
-                chat_format="chatml"  # Use chat format
+                trust_remote_code=config['model']['trust_remote_code']
             )
             load_time = time.time() - start_time
             print(f"Model loaded successfully in {load_time:.2f} seconds")
@@ -368,6 +383,7 @@ def main():
                 
                 completions = generate_completions(
                     model,
+                    tokenizer,
                     prompt['text'],
                     sampling_params,
                     args.num_completions
