@@ -2,12 +2,32 @@
   "prompts": [
     {
       "id": "math_001",
-      "text": "What is 15 multiplied by 7? Please provide your answer within <answer> tags.",
+      "text": "Eli is a merchant, who makes money through local trade. He has 100 coins to start. In Damascus, he buys 32 bushels of dates at 1 coin a bushel. He then travels to Aleppo, where he sells half of his dates for 2 coins a bushel; he also buys 23 bushels of millet at 3 coins a bushel. He then travels to Hama, where he sells the rest of his dates for 4 coins a bushel, but he has to sell all of his millet for 1 coin a bushel to keep it from spoiling. He also has to bribe the local tax collector 10 coins. How many coins does he have after all of this?",
       "scoring": {
         "type": "numeric",
-        "canonical_answer": 105,
+        "canonical_answer": 108,
+        "tolerance": 
+      }
+    },
+    {
+      "id": "math_002",
+      "text": "The grain overseer in Egypt has a warehouse, with dimensons of 3 x 13 x 4 meters. He can store 8 bushels of grain in each cubic meter of the warehouse. After he fills the warehouse totally, unfortunately 132 bushels are eaten by pests and weevils. He then receives orders to ship half of the remaining grain to Memphis. How many bushels does he move to Memphis?",
+      "scoring": {
+        "type": "numeric",
+        "canonical_answer": 558,
         "tolerance": 0
+      }
+    },
+    {
+      "id": "logic_01",
+      "text":"There are 3 houses in a row.\nEach house has exactly one of each of the following:\n- Profession: accountant, nurse, doctor\n- Yard ornament: bird feeder, flower, water fountain\n- Pet: rabbit, dog, bird\n- Appliance: computer, blender, radio\n- Vehicle: snowmobile, rollerblades, car\n\nClues:\n1. The bird is in the house with a accountant.\n2. The rollerblades is in the house with a nurse.\n3. The 1st house has a flower.\n4. The rollerblades is in the house with a blender.\n5. The car is in the house with a radio.\n6. The 3rd house has a blender.\n7. The house with a dog is next to the house with a flower.\n8. The 1st house has a radio.\n9. The 3rd house has a water fountain.\n10. The rabbit is in the house with a nurse.\n11. The dog is in the house with a doctor.\n12. The 1st house does not have a computer.\n\nYour task is to determine the order of the pets from left to right.\n\nYour answer should be a list of pets in order from left to right, formatted like [\"item1\", \"item2\", ...]. It shoud be inside <answer>...</answer> tags.",
+      "scoring": {
+        "type": "list",
+        "canonical_answer": ["bird", "dog", "rabbit"],
+        "order_matters": true,
+        "allow_partial": false
       }
     }
   ]
-} 
+}
+

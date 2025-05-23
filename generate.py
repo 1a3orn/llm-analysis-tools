@@ -119,21 +119,25 @@ def score_list(
         for sep in separators:
             try:
                 # Split and clean each item
-                items = [item.strip() for item in answer.split(sep)]
+                items = [item.strip().lower() for item in answer.split(sep)]
                 items = [item for item in items if item]  # Remove empty items
+                
+                # Convert canonical to lowercase for string comparison
+                canonical_lower = [str(x).lower() for x in canonical]
                 
                 # Try to convert items to numbers if canonical is numeric
                 if all(isinstance(x, (int, float)) for x in canonical):
                     items = [float(item) for item in items]
+                    canonical_lower = canonical  # Use original for numeric comparison
                 
                 if order_matters:
                     if allow_partial:
-                        return all(item in canonical for item in items)
-                    return items == canonical
+                        return all(item in canonical_lower for item in items)
+                    return items == canonical_lower
                 else:
                     if allow_partial:
-                        return all(item in canonical for item in items)
-                    return set(items) == set(canonical)
+                        return all(item in canonical_lower for item in items)
+                    return set(items) == set(canonical_lower)
             except (ValueError, TypeError):
                 continue
         
