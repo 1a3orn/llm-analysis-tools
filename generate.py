@@ -268,6 +268,16 @@ def create_sampling_params(strategy: Dict) -> SamplingParams:
     
     return SamplingParams(**params)
 
+def validate_model_path(model_path: str) -> bool:
+    """Validate that the model path exists and contains necessary files."""
+    path = Path(model_path)
+    if not path.exists():
+        return False
+    
+    # Check for common model files
+    required_files = ['config.json', 'pytorch_model.bin']
+    return all((path / file).exists() for file in required_files)
+
 def main():
     parser = argparse.ArgumentParser(description='Generate completions using VLLM')
     parser.add_argument('--config', required=True, help='Path to config file')
@@ -278,20 +288,40 @@ def main():
 
     try:
         # Load configuration
+        print("Loading configuration...")
         config = load_config(args.config)
         
         # Initialize model
+        model_path = config['model']['name']
+        print(f"Initializing model from: {model_path}")
+        
+        # Check if it's a local path
+        if os.path.exists(model_path):
+            print("Using local model files")
+            if not validate_model_path(model_path):
+                print("Warning: Local model path may be incomplete. Required files:")
+                print("  - config.json")
+                print("  - pytorch_model.bin")
+        else:
+            print("Model not found locally, will download from HuggingFace")
+        
+        print("This may take a few minutes for large models...")
+        start_time = time.time()
         try:
             model = LLM(
-                model=config['model']['name'],
+                model=model_path,
                 dtype=config['model']['dtype'],
                 trust_remote_code=config['model']['trust_remote_code']
             )
+            load_time = time.time() - start_time
+            print(f"Model loaded successfully in {load_time:.2f} seconds")
         except Exception as e:
             raise RuntimeError(f"Failed to initialize model: {e}")
         
         # Load prompts
+        print("Loading prompts...")
         prompts = load_prompts(args.prompts)
+        print(f"Loaded {len(prompts)} prompts")
         
         # Create output directory
         output_dir = Path(args.output)
@@ -302,6 +332,7 @@ def main():
         all_results = []
         
         # Process each prompt
+        print("\nGenerating completions...")
         for prompt in tqdm(prompts, desc="Processing prompts"):
             prompt_results = {
                 'prompt': {
@@ -352,6 +383,7 @@ def main():
         
         # Save consolidated results
         if config['output']['save_consolidated']:
+            print("\nSaving consolidated results...")
             metadata = {
                 'timestamp': datetime.now().isoformat(),
                 'model': config['model']['name'],
@@ -367,6 +399,7 @@ def main():
             
             with open(output_dir / 'all_results.json', 'w') as f:
                 json.dump(consolidated, f, indent=2)
+            print("Done!")
     
     except Exception as e:
         print(f"Error in main execution: {e}")

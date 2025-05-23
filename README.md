@@ -14,7 +14,14 @@ A tool for generating and evaluating completions from language models using VLLM
 pip install -r requirements.txt
 ```
 
-2. Configure your sampling strategies in `config.yaml`
+2. Configure your model and sampling strategies in `config.yaml`:
+   ```yaml
+   model:
+     # Can be either a HuggingFace model ID or a local path
+     name: "/path/to/your/model"  # Local model directory
+     dtype: "float16"
+     trust_remote_code: true
+   ```
 
 3. Create your prompts file in JSON format (see `sample_prompts.json` for example)
 
@@ -22,6 +29,23 @@ pip install -r requirements.txt
 ```bash
 python generate.py --config config.yaml --prompts prompts.json --output output/
 ```
+
+### Using Local Models
+
+The tool supports both HuggingFace model IDs and local model directories. To use a local model:
+
+1. Ensure your model directory contains the necessary files:
+   - `config.json`
+   - `pytorch_model.bin`
+   - Other model-specific files
+
+2. Point to the local directory in your config:
+   ```yaml
+   model:
+     name: "/path/to/your/model"
+   ```
+
+3. The tool will automatically detect if it's a local path and use the local files.
 
 ### Troubleshooting
 
@@ -36,7 +60,7 @@ python generate.py --config config.yaml --prompts prompts.json --output output/
 ## Configuration
 
 The `config.yaml` file allows you to specify:
-- Model configuration
+- Model configuration (local or HuggingFace)
 - Sampling strategies
 - Output settings
 - Scoring strategy defaults
