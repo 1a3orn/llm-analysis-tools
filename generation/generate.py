@@ -298,6 +298,8 @@ def create_sampling_params(strategy: Dict) -> SamplingParams:
     # Add optional parameters if they exist
     if 'min_p' in strategy:
         params['min_p'] = strategy['min_p']
+
+    print("Sampling params: ", params)
     
     return SamplingParams(**params)
 
@@ -316,7 +318,7 @@ def main():
     parser.add_argument('--config', required=True, help='Path to config file')
     parser.add_argument('--prompts', required=True, help='Path to prompts JSON file')
     parser.add_argument('--output', required=True, help='Output directory')
-    parser.add_argument('--num-completions', type=int, default=5, help='Number of completions per prompt')
+    parser.add_argument('--num-completions', type=int, default=40, help='Number of completions per prompt')
     args = parser.parse_args()
 
     try:
