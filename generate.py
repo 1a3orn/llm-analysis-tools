@@ -198,7 +198,8 @@ def process_completion(
         # Extract the actual completion text and token information from the RequestOutput object
         if hasattr(completion, 'outputs') and completion.outputs:
             output = completion.outputs[0]
-            text = output.text
+            # In chat format, the response is in the message content
+            text = output.message.content if hasattr(output, 'message') else output.text
             # Get token IDs if available
             token_ids = output.token_ids if hasattr(output, 'token_ids') else []
             # Create token-level information
@@ -241,11 +242,14 @@ def generate_completions(
     sampling_params: SamplingParams,
     num_completions: int
 ) -> List[Dict]:
-    """Generate multiple completions for a single prompt."""
+    """Generate multiple completions for a single prompt using chat format."""
     try:
         outputs = []
+        # Format the prompt as a chat message
+        messages = [{"role": "user", "content": prompt}]
+        
         for _ in range(num_completions):
-            output = model.generate(prompt, sampling_params)
+            output = model.generate(messages, sampling_params)
             outputs.extend(output)
         return outputs
     except Exception as e:
@@ -324,7 +328,8 @@ def main():
             model = LLM(
                 model=model_path,
                 dtype=config['model']['dtype'],
-                trust_remote_code=config['model']['trust_remote_code']
+                trust_remote_code=config['model']['trust_remote_code'],
+                chat_format="chatml"  # Use chat format
             )
             load_time = time.time() - start_time
             print(f"Model loaded successfully in {load_time:.2f} seconds")
