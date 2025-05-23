@@ -195,19 +195,26 @@ def process_completion(
 ) -> Dict:
     """Process a single completion and extract relevant information."""
     try:
-        # Extract the actual completion text from the RequestOutput object
+        # Extract the actual completion text and token information from the RequestOutput object
         if hasattr(completion, 'outputs') and completion.outputs:
-            text = completion.outputs[0].text
+            output = completion.outputs[0]
+            text = output.text
+            # Get token IDs if available
+            token_ids = output.token_ids if hasattr(output, 'token_ids') else []
+            # Create token-level information
+            tokens = []
+            if token_ids:
+                # Split text into words to match with token IDs
+                words = text.split()
+                for i, token_id in enumerate(token_ids):
+                    if i < len(words):
+                        tokens.append({
+                            'id': token_id,
+                            'text': words[i]
+                        })
         else:
             text = str(completion)
-        
-        # For now, we'll just store the text without detailed token information
-        # since VLLM doesn't provide it by default
-        tokens = [{
-            'text': text,
-            'start': 0,
-            'end': len(text)
-        }]
+            tokens = []
         
         # Check correctness
         format_correct = check_format_correctness(text, answer_tag)
